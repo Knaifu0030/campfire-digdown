@@ -65,7 +65,7 @@ export default function GameOverScreen() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Pirata One', 'Inter', sans-serif",
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.6s ease',
         zIndex: 100,
@@ -138,7 +138,7 @@ export default function GameOverScreen() {
             letterSpacing: 3,
             textTransform: 'uppercase',
             transition: 'all 0.2s',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Pirata One', 'Inter', sans-serif",
             pointerEvents: 'auto',
           }}
           onMouseEnter={(e) => {

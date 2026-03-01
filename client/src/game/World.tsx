@@ -53,7 +53,7 @@ export default function World() {
 
   useFrame((state, delta) => {
     const store = useGameStore.getState();
-    if (store.phase !== 'playing') return;
+    if (store.phase !== 'playing' || store.paused) return;
 
     const dt = Math.min(delta, 0.05);
     const currentRow = getCurrentRow();

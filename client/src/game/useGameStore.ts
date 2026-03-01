@@ -4,6 +4,7 @@ import { GameEvent } from './constants';
 
 interface GameStore {
   phase: 'menu' | 'playing' | 'gameover';
+  paused: boolean;
   depth: number;
   gems: number;
   highScore: number;
@@ -18,11 +19,14 @@ interface GameStore {
   startGame: () => void;
   endGame: () => void;
   restart: () => void;
+  togglePause: () => void;
+  setPaused: (p: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>()(
   subscribeWithSelector((set) => ({
     phase: 'menu' as const,
+    paused: false,
     depth: 0,
     gems: 0,
     highScore: 0,
@@ -37,6 +41,7 @@ export const useGameStore = create<GameStore>()(
     startGame: () =>
       set({
         phase: 'playing',
+        paused: false,
         depth: 0,
         gems: 0,
         shieldActive: false,
@@ -51,9 +56,18 @@ export const useGameStore = create<GameStore>()(
     endGame: () =>
       set((state) => ({
         phase: 'gameover',
+        paused: false,
         highScore: Math.max(state.highScore, Math.floor(state.depth)),
       })),
 
-    restart: () => set({ phase: 'menu' }),
+    restart: () => set({ phase: 'menu', paused: false }),
+
+    togglePause: () =>
+      set((state) => {
+        if (state.phase !== 'playing') return {};
+        return { paused: !state.paused };
+      }),
+
+    setPaused: (p) => set({ paused: p }),
   })),
 );

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from './useGameStore';
 import { resetGameState } from './gameState';
 import { useAudio } from '../lib/stores/useAudio';
+import { useControlsStore, getKeyLabel } from './useControlsStore';
 
 export default function MenuScreen() {
   const [visible, setVisible] = useState(false);
@@ -67,7 +68,7 @@ export default function MenuScreen() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Pirata One', 'Inter', sans-serif",
         opacity: fadeOut ? 0 : visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
         zIndex: 100,
@@ -125,7 +126,7 @@ export default function MenuScreen() {
             letterSpacing: 3,
             textTransform: 'uppercase',
             transition: 'all 0.2s',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Pirata One', 'Inter', sans-serif",
             pointerEvents: 'auto',
           }}
           onMouseEnter={(e) => {
@@ -154,23 +155,7 @@ export default function MenuScreen() {
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: 40,
-            fontSize: 13,
-            color: 'rgba(255,255,255,0.25)',
-            lineHeight: 2,
-          }}
-        >
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-            A/D
-          </span>{' '}
-          Move &nbsp;&nbsp;
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-            SPACE
-          </span>{' '}
-          Dash
-        </div>
+        <ControlHints />
       </div>
 
       <div
@@ -184,6 +169,37 @@ export default function MenuScreen() {
       >
         A Game Jam Entry
       </div>
+    </div>
+  );
+}
+
+function ControlHints() {
+  const bindings = useControlsStore((s) => s.bindings);
+  const leftBinding = bindings.find((b) => b.action === 'left');
+  const rightBinding = bindings.find((b) => b.action === 'right');
+  const dashBinding = bindings.find((b) => b.action === 'dash');
+
+  const leftLabel = leftBinding ? leftBinding.keys.map(getKeyLabel).join('/') : 'A';
+  const rightLabel = rightBinding ? rightBinding.keys.map(getKeyLabel).join('/') : 'D';
+  const dashLabel = dashBinding ? dashBinding.keys.map(getKeyLabel).join('/') : 'SPACE';
+
+  return (
+    <div
+      style={{
+        marginTop: 40,
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.25)',
+        lineHeight: 2,
+      }}
+    >
+      <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+        {leftLabel}/{rightLabel}
+      </span>{' '}
+      Move &nbsp;&nbsp;
+      <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+        {dashLabel}
+      </span>{' '}
+      Dash
     </div>
   );
 }

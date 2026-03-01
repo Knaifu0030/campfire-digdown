@@ -104,7 +104,7 @@ export default function Player() {
 
   useFrame((_state, delta) => {
     const store = useGameStore.getState();
-    if (store.phase !== 'playing' || !playerState.alive) return;
+    if (store.phase !== 'playing' || !playerState.alive || store.paused) return;
 
     const dt = Math.min(delta, 0.05);
     const controls = getControls();

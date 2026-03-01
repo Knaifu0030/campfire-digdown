@@ -1,23 +1,29 @@
 import { Canvas } from "@react-three/fiber";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { KeyboardControls } from "@react-three/drei";
-import "@fontsource/inter";
+import "@fontsource/pirata-one";
 import { useAudio } from "./lib/stores/useAudio";
 import { useGameStore } from "./game/useGameStore";
+import { useControlsStore } from "./game/useControlsStore";
 import { Controls } from "./game/Player";
 import GameScene from "./game/GameScene";
 import GameHUD from "./game/GameHUD";
 import MenuScreen from "./game/MenuScreen";
 import GameOverScreen from "./game/GameOverScreen";
-
-const keyMap = [
-  { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
-  { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
-  { name: Controls.dash, keys: ["Space"] },
-];
+import PauseMenu from "./game/PauseMenu";
 
 function App() {
   const phase = useGameStore((s) => s.phase);
+  const paused = useGameStore((s) => s.paused);
+  const togglePause = useGameStore((s) => s.togglePause);
+  const bindings = useControlsStore((s) => s.bindings);
+
+  const keyMap = useMemo(() => {
+    return bindings.map((b) => ({
+      name: b.action as Controls,
+      keys: b.keys,
+    }));
+  }, [bindings]);
 
   useEffect(() => {
     const bg = new Audio("/sounds/background.mp3");
@@ -30,6 +36,17 @@ function App() {
     useAudio.getState().setHitSound(hit);
     useAudio.getState().setSuccessSound(success);
   }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === "Escape" && phase === "playing" && !paused) {
+        e.preventDefault();
+        togglePause();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, paused, togglePause]);
 
   return (
     <div
@@ -67,7 +84,8 @@ function App() {
         </Canvas>
 
         {phase === "menu" && <MenuScreen />}
-        {phase === "playing" && <GameHUD />}
+        {phase === "playing" && !paused && <GameHUD />}
+        {phase === "playing" && paused && <PauseMenu />}
         {phase === "gameover" && <GameOverScreen />}
       </KeyboardControls>
     </div>

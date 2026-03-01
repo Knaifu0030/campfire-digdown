@@ -27,6 +27,8 @@
 - `GameHUD.tsx` - In-game HUD overlay (depth, gems, powerups, mute toggle)
 - `MenuScreen.tsx` - Title/start screen
 - `GameOverScreen.tsx` - Game over screen with stats
+- `PauseMenu.tsx` - Pause menu with resume, exit, volume controls, and key rebinding
+- `useControlsStore.ts` - Zustand store for customizable key bindings
 
 ### Existing Files
 - `client/src/lib/stores/useAudio.tsx` - Audio management (background, hit, success sounds)
@@ -41,10 +43,14 @@
 
 ## Game Design
 
-### Controls
-- A / Left Arrow: Move left one lane
-- D / Right Arrow: Move right one lane
-- Space: Dash downward (3.5x speed, 0.8s cooldown)
+### Font
+- All UI uses "Pirata One" gothic font (@fontsource/pirata-one)
+
+### Controls (Remappable via Pause > Options)
+- A / Left Arrow: Move left one lane (default)
+- D / Right Arrow: Move right one lane (default)
+- Space: Dash downward (3.5x speed, 0.8s cooldown) (default)
+- Escape: Toggle pause menu
 
 ### Depth Layers
 1. Surface Soil (0-100m): Warm brown tones

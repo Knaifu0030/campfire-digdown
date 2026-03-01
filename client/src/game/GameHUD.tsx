@@ -1,6 +1,7 @@
 import { useGameStore } from './useGameStore';
 import { useAudio } from '../lib/stores/useAudio';
 import { GameEvent } from './constants';
+import { useControlsStore, getKeyLabel } from './useControlsStore';
 
 export default function GameHUD() {
   const depth = useGameStore((s) => s.depth);
@@ -41,7 +42,7 @@ export default function GameHUD() {
       right: 0,
       bottom: 0,
       pointerEvents: 'none',
-      fontFamily: "'Inter', sans-serif",
+      fontFamily: "'Pirata One', 'Inter', sans-serif",
     }}>
       <div style={{
         position: 'absolute',
@@ -207,17 +208,7 @@ export default function GameHUD() {
         </div>
       )}
 
-      <div style={{
-        position: 'absolute',
-        bottom: 60,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.25)',
-        letterSpacing: 1,
-      }}>
-        A/D MOVE &nbsp; SPACE DASH
-      </div>
+      <HudControlHints />
     </div>
   );
 }
@@ -267,6 +258,30 @@ function PowerupIcon({
           {Math.ceil(timer)}s
         </span>
       )}
+    </div>
+  );
+}
+
+function HudControlHints() {
+  const bindings = useControlsStore((s) => s.bindings);
+  const leftBinding = bindings.find((b) => b.action === 'left');
+  const rightBinding = bindings.find((b) => b.action === 'right');
+  const dashBinding = bindings.find((b) => b.action === 'dash');
+
+  const moveLabel = `${leftBinding ? leftBinding.keys.map(getKeyLabel).join('/') : 'A'}/${rightBinding ? rightBinding.keys.map(getKeyLabel).join('/') : 'D'}`;
+  const dashLabel = dashBinding ? dashBinding.keys.map(getKeyLabel).join('/') : 'SPACE';
+
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 60,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      fontSize: 11,
+      color: 'rgba(255,255,255,0.25)',
+      letterSpacing: 1,
+    }}>
+      {moveLabel} MOVE &nbsp; {dashLabel} DASH &nbsp; ESC PAUSE
     </div>
   );
 }
