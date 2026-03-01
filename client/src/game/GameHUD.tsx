@@ -92,6 +92,36 @@ export default function GameHUD() {
         alignItems: 'center',
         gap: 10,
       }}>
+        <button
+          onClick={() => useGameStore.getState().togglePause()}
+          style={{
+            pointerEvents: 'auto',
+            cursor: 'pointer',
+            background: 'rgba(0,0,0,0.45)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 12,
+            padding: '8px 12px',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: 18,
+            fontFamily: FONT,
+            letterSpacing: 2,
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+          onPointerEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.65)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.3)';
+          }}
+          onPointerLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.45)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)';
+          }}
+        >
+          ☰
+        </button>
         <div style={{
           display: 'flex',
           alignItems: 'center',
