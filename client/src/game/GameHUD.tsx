@@ -47,9 +47,8 @@ export default function GameHUD() {
       <div style={{
         position: 'absolute',
         top: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        textAlign: 'center',
+        right: 24,
+        textAlign: 'right',
       }}>
         <div style={{
           fontSize: 14,
@@ -74,7 +73,7 @@ export default function GameHUD() {
       <div style={{
         position: 'absolute',
         top: 24,
-        right: 24,
+        left: 24,
         display: 'flex',
         alignItems: 'center',
         gap: 12,
