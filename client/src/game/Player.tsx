@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useKeyboardControls } from '@react-three/drei';
+import { useKeyboardControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   playerState,
@@ -77,17 +77,16 @@ export default function Player() {
   const targetScale = useRef(new THREE.Vector3(1, 1, 1));
   const squashTimer = useRef(0);
 
-  const playerMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0.15, 0.75, 1.0),
-        emissive: new THREE.Color(0.05, 0.35, 0.5),
-        emissiveIntensity: 0.6,
-        metalness: 0.3,
-        roughness: 0.4,
-      }),
-    [],
-  );
+  const { scene: shovelScene } = useGLTF('/models/shovel.glb');
+  const shovelModel = useMemo(() => {
+    const clone = shovelScene.clone(true);
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true;
+      }
+    });
+    return clone;
+  }, [shovelScene]);
 
   const shieldMat = useMemo(
     () =>
@@ -279,9 +278,12 @@ export default function Player() {
 
   return (
     <group ref={groupRef}>
-      <mesh material={playerMat}>
-        <boxGeometry args={[PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE]} />
-      </mesh>
+      <primitive
+        object={shovelModel}
+        scale={[2.5, 2.5, 2.5]}
+        rotation={[Math.PI, 0, 0]}
+        position={[0, PLAYER_SIZE * 0.3, 0]}
+      />
       {shieldActive && (
         <mesh material={shieldMat}>
           <sphereGeometry args={[PLAYER_SIZE * 0.85, 16, 16]} />
@@ -290,3 +292,5 @@ export default function Player() {
     </group>
   );
 }
+
+useGLTF.preload('/models/shovel.glb');
