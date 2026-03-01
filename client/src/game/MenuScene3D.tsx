@@ -3,11 +3,14 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { LANE_COUNT, LANE_SPACING, BLOCK_SIZE, getLaneX } from './constants';
+import { useGameStore } from './useGameStore';
 
 const MENU_BLOCK_ROWS = 8;
+const DIG_DEPTH = 12;
 
 export default function MenuScene3D() {
   const shovelRef = useRef<THREE.Group>(null);
+  const cameraRef = useRef({ y: 0 });
   const { scene: shovelScene } = useGLTF('/models/shovel.glb');
   const shovelModel = useMemo(() => {
     const clone = shovelScene.clone(true);
@@ -20,6 +23,7 @@ export default function MenuScene3D() {
   }, [shovelScene]);
 
   const time = useRef(0);
+  const transitionProgress = useRef(0);
 
   const blocks = useMemo(() => {
     const arr: { x: number; y: number; color: string; scale: number }[] = [];
@@ -40,14 +44,36 @@ export default function MenuScene3D() {
     return arr;
   }, []);
 
-  useFrame((_state, delta) => {
+  useFrame((state, delta) => {
     time.current += delta;
+    const store = useGameStore.getState();
+    const t = store.menuTransition;
+
+    if (t > 0 && transitionProgress.current < 1) {
+      transitionProgress.current = Math.min(1, transitionProgress.current + delta * 0.8);
+    }
+
+    const p = transitionProgress.current;
+    const eased = p * p * (3 - 2 * p);
+
+    const shovelY = 0.5 - eased * DIG_DEPTH;
+    const digSpeed = p > 0 ? 6 + p * 14 : 1.5;
+    const digAmplitude = p > 0 ? 0.3 + p * 0.2 : 0.15;
 
     if (shovelRef.current) {
-      const idleSwing = Math.sin(time.current * 1.5) * 0.15;
-      const idleBob = Math.sin(time.current * 2.5) * 0.06;
-      shovelRef.current.rotation.z = idleSwing;
-      shovelRef.current.position.y = idleBob + 0.5;
+      const swing = Math.sin(time.current * digSpeed) * digAmplitude;
+      const bob = Math.sin(time.current * digSpeed * 2) * (p > 0 ? 0.08 : 0.06);
+      shovelRef.current.rotation.z = swing;
+      shovelRef.current.position.y = shovelY + bob;
+    }
+
+    const camY = -eased * DIG_DEPTH * 0.6;
+    cameraRef.current.y += (camY - cameraRef.current.y) * Math.min(1, 4 * delta);
+    state.camera.position.y = cameraRef.current.y;
+    state.camera.lookAt(0, cameraRef.current.y - 2, 0);
+
+    if (p >= 1 && t > 0) {
+      store.startGame();
     }
   });
 

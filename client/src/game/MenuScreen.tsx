@@ -8,9 +8,9 @@ const FONT = "'Pirata One', 'Inter', sans-serif";
 
 export default function MenuScreen() {
   const [visible, setVisible] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const highScore = useGameStore((s) => s.highScore);
-  const startGame = useGameStore((s) => s.startGame);
+  const menuTransition = useGameStore((s) => s.menuTransition);
+  const setMenuTransition = useGameStore((s) => s.setMenuTransition);
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -21,7 +21,6 @@ export default function MenuScreen() {
   const handleStart = () => {
     if (startedRef.current) return;
     startedRef.current = true;
-    setFadeOut(true);
     resetGameState();
 
     const audio = useAudio.getState();
@@ -32,9 +31,7 @@ export default function MenuScreen() {
       audio.backgroundMusic.play().catch(() => {});
     }
 
-    setTimeout(() => {
-      startGame();
-    }, 400);
+    setMenuTransition(1);
   };
 
   useEffect(() => {
@@ -57,6 +54,10 @@ export default function MenuScreen() {
     };
   }, []);
 
+  const logoOffset = menuTransition > 0 ? -120 : 0;
+  const bottomOffset = menuTransition > 0 ? 100 : 0;
+  const fadeOpacity = menuTransition > 0 ? 0 : 1;
+
   return (
     <div
       style={{
@@ -70,7 +71,7 @@ export default function MenuScreen() {
         alignItems: 'center',
         justifyContent: 'flex-start',
         fontFamily: FONT,
-        opacity: fadeOut ? 0 : visible ? 1 : 0,
+        opacity: visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
         zIndex: 100,
         pointerEvents: 'none',
@@ -85,6 +86,8 @@ export default function MenuScreen() {
           bottom: 0,
           background: 'linear-gradient(180deg, rgba(10,8,6,0.7) 0%, rgba(10,8,6,0.1) 40%, rgba(10,8,6,0.3) 70%, rgba(10,8,6,0.8) 100%)',
           pointerEvents: 'none',
+          opacity: fadeOpacity,
+          transition: 'opacity 1.2s ease',
         }}
       />
 
@@ -92,6 +95,9 @@ export default function MenuScreen() {
         position: 'relative',
         textAlign: 'center',
         marginTop: '8vh',
+        transform: `translateY(${logoOffset}vh)`,
+        opacity: fadeOpacity,
+        transition: 'transform 1.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease',
       }}>
         <div
           style={{
@@ -139,6 +145,9 @@ export default function MenuScreen() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 16,
+        transform: `translateY(${bottomOffset}vh)`,
+        opacity: fadeOpacity,
+        transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease',
       }}>
         <button
           onClick={handleStart}
@@ -197,17 +206,12 @@ export default function MenuScreen() {
           fontSize: 11,
           color: 'rgba(255,255,255,0.2)',
           letterSpacing: 2,
+          opacity: fadeOpacity,
+          transition: 'opacity 0.6s ease',
         }}
       >
         A Game Jam Entry
       </div>
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-      `}</style>
     </div>
   );
 }
