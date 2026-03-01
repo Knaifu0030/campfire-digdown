@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useKeyboardControls, useGLTF } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   playerState,
@@ -13,6 +13,7 @@ import {
 } from './gameState';
 import { useGameStore } from './useGameStore';
 import { useAudio } from '../lib/stores/useAudio';
+import { pollInput, vibrateGamepad, getActiveSource } from './InputManager';
 import {
   LANE_COUNT,
   BASE_SPEED,
@@ -135,10 +136,6 @@ function spawnDeathParticles(x: number, y: number) {
 export default function Player() {
   const groupRef = useRef<THREE.Group>(null);
   const shovelRef = useRef<THREE.Group>(null);
-  const [, getControls] = useKeyboardControls<Controls>();
-  const prevLeft = useRef(false);
-  const prevRight = useRef(false);
-  const prevDash = useRef(false);
   const scaleRef = useRef(new THREE.Vector3(1, 1, 1));
   const targetScale = useRef(new THREE.Vector3(1, 1, 1));
   const squashTimer = useRef(0);
@@ -198,26 +195,24 @@ export default function Player() {
       return;
     }
 
-    const controls = getControls();
+    const input = pollInput();
 
-    if (controls.left && !prevLeft.current) {
+    if (input.moveLeft) {
       playerState.lane = Math.max(0, playerState.lane - 1);
       tiltTarget.current = 0.15;
     }
-    if (controls.right && !prevRight.current) {
+    if (input.moveRight) {
       playerState.lane = Math.min(LANE_COUNT - 1, playerState.lane + 1);
       tiltTarget.current = -0.15;
     }
-    if (controls.dash && !prevDash.current && playerState.dashCooldown <= 0) {
+    if (input.dash && playerState.dashCooldown <= 0) {
       playerState.dashActive = true;
       playerState.dashTimer = DASH_DURATION;
       playerState.dashCooldown = DASH_COOLDOWN;
       targetScale.current.set(0.75, 1.35, 0.75);
       triggerCameraShake(0.3);
+      vibrateGamepad(80, 0.2);
     }
-    prevLeft.current = controls.left;
-    prevRight.current = controls.right;
-    prevDash.current = controls.dash;
 
     if (playerState.dashActive) {
       playerState.dashTimer -= dt;
@@ -295,6 +290,7 @@ export default function Player() {
           targetScale.current.set(1.12, 0.88, 1.12);
           squashTimer.current = 0.1;
           useAudio.getState().playHit();
+          vibrateGamepad(40, 0.1);
           break;
         }
         case BlockType.HARD: {
@@ -305,11 +301,13 @@ export default function Player() {
             triggerCameraShake(0.8);
             targetScale.current.set(0.8, 1.2, 0.8);
             squashTimer.current = 0.15;
+            vibrateGamepad(150, 0.5);
           } else {
             triggerCameraShake(2.0);
             spawnDeathParticles(playerState.visualX, playerState.y);
             playerState.alive = false;
             deathTimer.current = 0;
+            vibrateGamepad(300, 1.0);
             return;
           }
           break;
@@ -321,6 +319,7 @@ export default function Player() {
           targetScale.current.set(1.08, 0.92, 1.08);
           squashTimer.current = 0.06;
           useAudio.getState().playSuccess();
+          vibrateGamepad(30, 0.15);
           break;
         }
         case BlockType.POWERUP_SHIELD: {
@@ -329,6 +328,7 @@ export default function Player() {
           spawnBlockParticles(playerState.lane, row, [0.2, 0.5, 1.0], 20, 4);
           triggerCameraShake(0.3);
           useAudio.getState().playSuccess();
+          vibrateGamepad(100, 0.3);
           break;
         }
         case BlockType.POWERUP_MAGNET: {
@@ -337,6 +337,7 @@ export default function Player() {
           spawnBlockParticles(playerState.lane, row, [0.8, 0.2, 1.0], 20, 4);
           triggerCameraShake(0.3);
           useAudio.getState().playSuccess();
+          vibrateGamepad(100, 0.3);
           break;
         }
         case BlockType.POWERUP_SPEED: {
@@ -345,6 +346,7 @@ export default function Player() {
           spawnBlockParticles(playerState.lane, row, [0.2, 1.0, 0.3], 20, 4);
           triggerCameraShake(0.3);
           useAudio.getState().playSuccess();
+          vibrateGamepad(100, 0.3);
           break;
         }
       }

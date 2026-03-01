@@ -18,7 +18,9 @@
 - `gameState.ts` - Shared mutable game state (block grid, player state, particles with maxLife for fade-out, camera shake with exponential decay, events)
 - `useGameStore.ts` - Zustand store for UI-reactive state (phase, depth, gems, powerups, events, menuTransition)
 - `worldGen.ts` - Procedural row generation with depth-based difficulty scaling using depthFactor (0-1 over 800 rows)
-- `Player.tsx` - Player component with spring-based lane movement, dash trail particles, death slow-mo sequence, gem sparkle effects, shovel tilt on lane change
+- `InputManager.ts` - Unified input system supporting keyboard, gamepad (Xbox/PlayStation), and mobile touch. Edge detection, gamepad polling with deadzone, touch joystick with repeat-trigger for held directions
+- `TouchControls.tsx` - Mobile touch overlay: virtual joystick (left), dash button (right), pause button. Auto-detected via touch capability/screen size
+- `Player.tsx` - Player component with spring-based lane movement, dash trail particles, death slow-mo sequence, gem sparkle effects, shovel tilt on lane change. Reads from InputManager
 - `World.tsx` - World rendering with InstancedMesh, chunk generation/cleanup, event system, wall rendering
 - `FollowCamera.tsx` - Smooth follow camera with speed-based dynamic look-ahead and offset, exponential camera shake
 - `Particles.tsx` - InstancedMesh particle system (max 600) with maxLife-based fade-out and brightness scaling
@@ -33,7 +35,7 @@
 
 ### Existing Files
 - `client/src/lib/stores/useAudio.tsx` - Audio management (background, hit, success sounds)
-- `client/src/App.tsx` - Root component wiring Canvas, KeyboardControls, and UI screens
+- `client/src/App.tsx` - Root component wiring Canvas, KeyboardControls, UI screens, InputManager init, gamepad pause polling
 
 ### Server (minimal)
 - `server/index.ts` - Express server
@@ -46,11 +48,25 @@
 ### Font
 - All UI uses "Pirata One" gothic font (@fontsource/pirata-one)
 
-### Controls (Remappable via Pause > Options)
-- A / Left Arrow: Move left one lane (default)
-- D / Right Arrow: Move right one lane (default)
-- Space: Dash downward (3.2x speed, 0.7s cooldown) (default)
+### Controls (Multi-Platform)
+**Keyboard** (remappable via Pause > Options):
+- A / Left Arrow: Move left one lane
+- D / Right Arrow: Move right one lane
+- Space: Dash downward (3.2x speed, 0.7s cooldown)
 - Escape: Toggle pause menu
+
+**Gamepad** (Xbox / PlayStation):
+- Left stick / D-pad: Move left/right (with 0.15 deadzone, 0.5 threshold)
+- A / Cross: Dash
+- Start: Pause
+- Vibration feedback on collisions, gem pickups, and death
+
+**Mobile Touch** (auto-detected):
+- Virtual joystick (left): Drag left/right to move with repeat-trigger when held
+- Dash button (right): Tap to dash
+- Pause button (top-right): Tap to pause
+
+Input priority: Gamepad (on real input) > Touch (on mobile) > Keyboard (default)
 
 ### Depth Layers
 1. Surface Soil (0-100m): Warm brown tones

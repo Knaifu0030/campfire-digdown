@@ -1,0 +1,125 @@
+Upgrade the existing "DIG DOWN" game to support MULTI-PLATFORM INPUT including:
+
+1) Keyboard (existing)
+2) Game Controller (Xbox / PlayStation compatible)
+3) Mobile Touch Controls (phones and tablets)
+
+IMPORTANT:
+Do NOT rewrite gameplay systems. Instead, implement a unified input system that feeds into the existing PlayerController.
+
+--------------------------------------------------
+INPUT SYSTEM ARCHITECTURE
+--------------------------------------------------
+
+Create an InputManager system that abstracts all inputs.
+
+InputManager should expose normalized actions:
+
+- moveLeft (0–1)
+- moveRight (0–1)
+- dashPressed (boolean)
+- pausePressed (boolean)
+
+PlayerController must read ONLY from InputManager, not directly from keyboard or touch events.
+
+--------------------------------------------------
+KEYBOARD SUPPORT (KEEP EXISTING)
+--------------------------------------------------
+
+Maintain:
+- A / Left Arrow → move left
+- D / Right Arrow → move right
+- Space → dash
+
+Refactor keyboard input into InputManager.
+
+--------------------------------------------------
+GAME CONTROLLER SUPPORT
+--------------------------------------------------
+
+Add Gamepad API support.
+
+Requirements:
+- Detect connected controllers automatically.
+- Support Xbox and PlayStation layouts.
+- Left analog stick horizontal axis controls movement.
+- D-pad left/right also works.
+- A / Cross button triggers dash.
+- Start button pauses game.
+
+Implementation details:
+- Poll navigator.getGamepads().
+- Apply deadzone (0.15) to analog stick.
+- Smooth analog input for gradual movement speed.
+
+Movement strength should scale with joystick tilt.
+
+--------------------------------------------------
+MOBILE TOUCH SUPPORT
+--------------------------------------------------
+
+Automatically detect mobile devices using screen size or touch capability.
+
+Add responsive on-screen controls:
+
+LEFT SIDE:
+- Virtual joystick for movement.
+
+RIGHT SIDE:
+- Large circular Dash button.
+
+Requirements:
+- Touch controls must not block gameplay view.
+- Controls semi-transparent.
+- Responsive to different screen sizes.
+- Prevent scrolling or page movement during gameplay.
+
+Virtual joystick behavior:
+- Drag left/right to control movement intensity.
+- Return to center when released.
+
+--------------------------------------------------
+UI ADAPTATION
+--------------------------------------------------
+
+When mobile is detected:
+- Increase UI size slightly.
+- Ensure buttons are thumb reachable.
+- Maintain safe margins from screen edges.
+
+--------------------------------------------------
+INPUT PRIORITY RULES
+--------------------------------------------------
+
+- If controller connected → prioritize controller.
+- If touch detected → enable mobile UI.
+- Otherwise use keyboard.
+- Allow seamless switching between inputs.
+
+--------------------------------------------------
+POLISH REQUIREMENTS
+--------------------------------------------------
+
+- Smooth input transitions.
+- No sudden velocity jumps.
+- Movement must feel identical across all platforms.
+- Add small vibration feedback for controller on collision or gem pickup (if supported).
+
+--------------------------------------------------
+PERFORMANCE
+--------------------------------------------------
+
+- Input polling must be lightweight.
+- Avoid creating new objects every frame.
+- Maintain high FPS on mobile devices.
+
+--------------------------------------------------
+CODE QUALITY
+--------------------------------------------------
+
+- Create separate InputManager module/class.
+- Clearly comment platform-specific sections.
+- Keep code readable and modular.
+- Ensure game runs immediately after update.
+
+The final result should feel like a cross-platform indie game with professional input handling.
