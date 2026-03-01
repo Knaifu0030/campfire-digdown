@@ -4,6 +4,8 @@ import { resetGameState } from './gameState';
 import { useAudio } from '../lib/stores/useAudio';
 import { useControlsStore, getKeyLabel } from './useControlsStore';
 
+const FONT = "'Pirata One', 'Inter', sans-serif";
+
 export default function MenuScreen() {
   const [visible, setVisible] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
@@ -63,38 +65,55 @@ export default function MenuScreen() {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(180deg, #0a0806 0%, #1a1008 40%, #0d0a06 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: "'Pirata One', 'Inter', sans-serif",
+        justifyContent: 'flex-start',
+        fontFamily: FONT,
         opacity: fadeOut ? 0 : visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
         zIndex: 100,
+        pointerEvents: 'none',
       }}
     >
-      <div style={{ textAlign: 'center' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(180deg, rgba(10,8,6,0.7) 0%, rgba(10,8,6,0.1) 40%, rgba(10,8,6,0.3) 70%, rgba(10,8,6,0.8) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div style={{
+        position: 'relative',
+        textAlign: 'center',
+        marginTop: '8vh',
+      }}>
         <div
           style={{
-            fontSize: 12,
+            fontSize: 13,
             letterSpacing: 8,
-            color: 'rgba(255,180,80,0.5)',
-            marginBottom: 8,
+            color: 'rgba(255,180,80,0.6)',
+            marginBottom: 10,
             textTransform: 'uppercase',
+            textShadow: '0 0 20px rgba(255,150,50,0.3)',
           }}
         >
           Beneath the Surface
         </div>
         <h1
           style={{
-            fontSize: 72,
-            fontWeight: 900,
+            fontSize: 80,
+            fontWeight: 400,
             color: '#fff',
             margin: 0,
-            letterSpacing: -2,
+            letterSpacing: 6,
             textShadow:
-              '0 0 40px rgba(100,180,255,0.3), 0 4px 20px rgba(0,0,0,0.5)',
+              '0 0 60px rgba(100,180,255,0.4), 0 0 120px rgba(100,180,255,0.15), 0 4px 20px rgba(0,0,0,0.8)',
             lineHeight: 1,
           }}
         >
@@ -103,41 +122,54 @@ export default function MenuScreen() {
 
         <div
           style={{
-            width: 60,
-            height: 3,
+            width: 80,
+            height: 2,
             background:
-              'linear-gradient(90deg, transparent, rgba(100,180,255,0.6), transparent)',
-            margin: '24px auto',
+              'linear-gradient(90deg, transparent, rgba(100,180,255,0.5), transparent)',
+            margin: '20px auto',
             borderRadius: 2,
           }}
         />
+      </div>
 
+      <div style={{
+        position: 'absolute',
+        bottom: '18vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 16,
+      }}>
         <button
           onClick={handleStart}
           style={{
-            background: 'rgba(100,180,255,0.12)',
-            border: '1px solid rgba(100,180,255,0.3)',
-            borderRadius: 12,
-            padding: '14px 48px',
+            background: 'rgba(100,180,255,0.15)',
+            border: '1px solid rgba(100,180,255,0.35)',
+            borderRadius: 14,
+            padding: '16px 56px',
             color: '#fff',
-            fontSize: 18,
-            fontWeight: 600,
+            fontSize: 22,
+            fontWeight: 400,
             cursor: 'pointer',
-            letterSpacing: 3,
+            letterSpacing: 4,
             textTransform: 'uppercase',
-            transition: 'all 0.2s',
-            fontFamily: "'Pirata One', 'Inter', sans-serif",
+            transition: 'all 0.25s',
+            fontFamily: FONT,
             pointerEvents: 'auto',
+            backdropFilter: 'blur(8px)',
+            textShadow: '0 0 20px rgba(100,180,255,0.3)',
           }}
           onMouseEnter={(e) => {
             (e.target as HTMLElement).style.background =
-              'rgba(100,180,255,0.25)';
-            (e.target as HTMLElement).style.transform = 'scale(1.05)';
+              'rgba(100,180,255,0.3)';
+            (e.target as HTMLElement).style.transform = 'scale(1.08)';
+            (e.target as HTMLElement).style.boxShadow = '0 0 30px rgba(100,180,255,0.2)';
           }}
           onMouseLeave={(e) => {
             (e.target as HTMLElement).style.background =
-              'rgba(100,180,255,0.12)';
+              'rgba(100,180,255,0.15)';
             (e.target as HTMLElement).style.transform = 'scale(1)';
+            (e.target as HTMLElement).style.boxShadow = 'none';
           }}
         >
           Start Digging
@@ -146,9 +178,9 @@ export default function MenuScreen() {
         {highScore > 0 && (
           <div
             style={{
-              marginTop: 20,
-              fontSize: 14,
-              color: 'rgba(255,255,255,0.4)',
+              fontSize: 16,
+              color: 'rgba(255,215,0,0.7)',
+              textShadow: '0 0 10px rgba(255,200,0,0.2)',
             }}
           >
             Best: {highScore}m
@@ -161,14 +193,21 @@ export default function MenuScreen() {
       <div
         style={{
           position: 'absolute',
-          bottom: 20,
+          bottom: 16,
           fontSize: 11,
-          color: 'rgba(255,255,255,0.15)',
-          letterSpacing: 1,
+          color: 'rgba(255,255,255,0.2)',
+          letterSpacing: 2,
         }}
       >
         A Game Jam Entry
       </div>
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -186,20 +225,28 @@ function ControlHints() {
   return (
     <div
       style={{
-        marginTop: 40,
+        marginTop: 8,
         fontSize: 13,
-        color: 'rgba(255,255,255,0.25)',
+        color: 'rgba(255,255,255,0.3)',
         lineHeight: 2,
+        backdropFilter: 'blur(4px)',
+        background: 'rgba(0,0,0,0.2)',
+        borderRadius: 8,
+        padding: '4px 20px',
       }}
     >
-      <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+      <span style={{ color: 'rgba(255,255,255,0.5)' }}>
         {leftLabel}/{rightLabel}
       </span>{' '}
       Move &nbsp;&nbsp;
-      <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+      <span style={{ color: 'rgba(255,255,255,0.5)' }}>
         {dashLabel}
       </span>{' '}
-      Dash
+      Dash &nbsp;&nbsp;
+      <span style={{ color: 'rgba(255,255,255,0.5)' }}>
+        SPACE/ENTER
+      </span>{' '}
+      Start
     </div>
   );
 }
