@@ -3,6 +3,8 @@ import { useAudio } from '../lib/stores/useAudio';
 import { GameEvent } from './constants';
 import { useControlsStore, getKeyLabel } from './useControlsStore';
 
+const FONT = "'Pirata One', 'Inter', sans-serif";
+
 export default function GameHUD() {
   const depth = useGameStore((s) => s.depth);
   const isMuted = useAudio((s) => s.isMuted);
@@ -25,12 +27,23 @@ export default function GameHUD() {
 
   const getEventLabel = (e: GameEvent): string => {
     switch (e) {
-      case GameEvent.GEM_RUSH: return 'GEM RUSH!';
-      case GameEvent.SPEED_TUNNEL: return 'SPEED TUNNEL!';
-      case GameEvent.LOW_GRAVITY: return 'LOW GRAVITY!';
-      case GameEvent.TREASURE_POCKET: return 'TREASURE POCKET!';
-      case GameEvent.ROCK_RAIN: return 'ROCK RAIN!';
+      case GameEvent.GEM_RUSH: return 'GEM RUSH';
+      case GameEvent.SPEED_TUNNEL: return 'SPEED TUNNEL';
+      case GameEvent.LOW_GRAVITY: return 'LOW GRAVITY';
+      case GameEvent.TREASURE_POCKET: return 'TREASURE POCKET';
+      case GameEvent.ROCK_RAIN: return 'ROCK RAIN';
       default: return '';
+    }
+  };
+
+  const getEventColor = (e: GameEvent): string => {
+    switch (e) {
+      case GameEvent.GEM_RUSH: return '#ffd700';
+      case GameEvent.SPEED_TUNNEL: return '#33ff66';
+      case GameEvent.LOW_GRAVITY: return '#88bbff';
+      case GameEvent.TREASURE_POCKET: return '#ffaa33';
+      case GameEvent.ROCK_RAIN: return '#ff5544';
+      default: return '#fff';
     }
   };
 
@@ -42,7 +55,7 @@ export default function GameHUD() {
       right: 0,
       bottom: 0,
       pointerEvents: 'none',
-      fontFamily: "'Pirata One', 'Inter', sans-serif",
+      fontFamily: FONT,
     }}>
       <div style={{
         position: 'absolute',
@@ -51,19 +64,20 @@ export default function GameHUD() {
         textAlign: 'right',
       }}>
         <div style={{
-          fontSize: 14,
-          color: 'rgba(255,255,255,0.5)',
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.4)',
           letterSpacing: 3,
           textTransform: 'uppercase',
           marginBottom: 4,
+          transition: 'color 0.5s ease',
         }}>
           {getLayerName(depth)}
         </div>
         <div style={{
-          fontSize: 48,
+          fontSize: 52,
           fontWeight: 800,
           color: '#fff',
-          textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+          textShadow: '0 2px 20px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.3)',
           lineHeight: 1,
         }}>
           {depth}m
@@ -76,22 +90,25 @@ export default function GameHUD() {
         left: 24,
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 10,
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          background: 'rgba(0,0,0,0.4)',
+          background: 'rgba(0,0,0,0.45)',
           borderRadius: 12,
           padding: '8px 16px',
           backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,215,0,0.1)',
         }}>
-          <span style={{ fontSize: 20 }}>💎</span>
+          <span style={{ fontSize: 18 }}>💎</span>
           <span style={{
             fontSize: 22,
             fontWeight: 700,
             color: '#ffd700',
+            textShadow: '0 0 10px rgba(255,200,0,0.2)',
+            minWidth: 28,
           }}>
             {gems}
           </span>
@@ -110,11 +127,11 @@ export default function GameHUD() {
             }
           }}
           style={{
-            background: 'rgba(0,0,0,0.4)',
-            border: 'none',
+            background: 'rgba(0,0,0,0.45)',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
-            width: 36,
-            height: 36,
+            width: 38,
+            height: 38,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -122,6 +139,7 @@ export default function GameHUD() {
             fontSize: 16,
             pointerEvents: 'auto',
             backdropFilter: 'blur(8px)',
+            transition: 'background 0.2s',
           }}
         >
           {isMuted ? '🔇' : '🔊'}
@@ -134,8 +152,13 @@ export default function GameHUD() {
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
-        gap: 12,
+        gap: 10,
         alignItems: 'center',
+        background: 'rgba(0,0,0,0.35)',
+        borderRadius: 14,
+        padding: '8px 18px',
+        backdropFilter: 'blur(6px)',
+        border: '1px solid rgba(255,255,255,0.06)',
       }}>
         <PowerupIcon
           label="SHIELD"
@@ -160,54 +183,88 @@ export default function GameHUD() {
         />
 
         <div style={{
-          width: 60,
-          height: 6,
-          background: 'rgba(255,255,255,0.15)',
-          borderRadius: 3,
-          marginLeft: 16,
-          overflow: 'hidden',
+          width: 1,
+          height: 28,
+          background: 'rgba(255,255,255,0.08)',
+          margin: '0 8px',
+        }} />
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 4,
         }}>
           <div style={{
-            width: `${(1 - dashCooldownPct) * 100}%`,
-            height: '100%',
-            background: dashCooldownPct > 0 ? 'rgba(255,255,255,0.3)' : '#44ccff',
+            width: 56,
+            height: 5,
+            background: 'rgba(255,255,255,0.1)',
             borderRadius: 3,
-            transition: dashCooldownPct === 0 ? 'background 0.2s' : 'none',
-          }} />
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              width: `${(1 - dashCooldownPct) * 100}%`,
+              height: '100%',
+              background: dashCooldownPct > 0
+                ? 'linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.25))'
+                : 'linear-gradient(90deg, #33ccff, #66ddff)',
+              borderRadius: 3,
+              transition: dashCooldownPct === 0 ? 'background 0.3s' : 'none',
+              boxShadow: dashCooldownPct === 0 ? '0 0 8px rgba(51,204,255,0.4)' : 'none',
+            }} />
+          </div>
+          <span style={{
+            fontSize: 9,
+            color: dashCooldownPct > 0 ? 'rgba(255,255,255,0.25)' : 'rgba(100,200,255,0.7)',
+            letterSpacing: 2,
+            transition: 'color 0.3s',
+          }}>
+            DASH
+          </span>
         </div>
-        <span style={{
-          fontSize: 11,
-          color: dashCooldownPct > 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)',
-          letterSpacing: 1,
-        }}>
-          DASH
-        </span>
       </div>
 
       {activeEvent !== GameEvent.NONE && (
         <div style={{
           position: 'absolute',
-          top: 100,
+          top: 90,
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'rgba(255,200,0,0.15)',
-          border: '1px solid rgba(255,200,0,0.3)',
-          borderRadius: 8,
-          padding: '6px 20px',
-          backdropFilter: 'blur(8px)',
+          background: `linear-gradient(135deg, ${getEventColor(activeEvent)}15, ${getEventColor(activeEvent)}08)`,
+          border: `1px solid ${getEventColor(activeEvent)}40`,
+          borderRadius: 10,
+          padding: '8px 24px',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          animation: 'eventSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         }}>
           <span style={{
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 700,
-            color: '#ffd700',
+            color: getEventColor(activeEvent),
             letterSpacing: 2,
+            textShadow: `0 0 15px ${getEventColor(activeEvent)}44`,
           }}>
-            {getEventLabel(activeEvent)} {Math.ceil(eventTimeLeft)}s
+            {getEventLabel(activeEvent)}
+          </span>
+          <span style={{
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.5)',
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {Math.ceil(eventTimeLeft)}s
           </span>
         </div>
       )}
 
-      <HudControlHints />
+      <style>{`
+        @keyframes eventSlideIn {
+          from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.9); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -230,57 +287,36 @@ function PowerupIcon({
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      opacity: active ? 1 : 0.3,
-      transition: 'opacity 0.3s',
+      opacity: active ? 1 : 0.25,
+      transition: 'opacity 0.3s, transform 0.3s',
+      transform: active ? 'scale(1.1)' : 'scale(1)',
     }}>
       <div style={{
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: 10,
-        background: active ? `${color}33` : 'rgba(255,255,255,0.08)',
-        border: `2px solid ${active ? color : 'rgba(255,255,255,0.1)'}`,
+        background: active ? `${color}20` : 'rgba(255,255,255,0.04)',
+        border: `1.5px solid ${active ? `${color}80` : 'rgba(255,255,255,0.08)'}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 18,
-        boxShadow: active ? `0 0 12px ${color}55` : 'none',
+        fontSize: 17,
+        boxShadow: active ? `0 0 16px ${color}33, inset 0 0 8px ${color}11` : 'none',
+        transition: 'all 0.3s',
       }}>
         {icon}
       </div>
       {active && timer > 0 && (
         <span style={{
-          fontSize: 10,
+          fontSize: 9,
           color,
           fontWeight: 600,
-          marginTop: 2,
+          marginTop: 3,
+          textShadow: `0 0 6px ${color}44`,
         }}>
           {Math.ceil(timer)}s
         </span>
       )}
-    </div>
-  );
-}
-
-function HudControlHints() {
-  const bindings = useControlsStore((s) => s.bindings);
-  const leftBinding = bindings.find((b) => b.action === 'left');
-  const rightBinding = bindings.find((b) => b.action === 'right');
-  const dashBinding = bindings.find((b) => b.action === 'dash');
-
-  const moveLabel = `${leftBinding ? leftBinding.keys.map(getKeyLabel).join('/') : 'A'}/${rightBinding ? rightBinding.keys.map(getKeyLabel).join('/') : 'D'}`;
-  const dashLabel = dashBinding ? dashBinding.keys.map(getKeyLabel).join('/') : 'SPACE';
-
-  return (
-    <div style={{
-      position: 'absolute',
-      bottom: 60,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.25)',
-      letterSpacing: 1,
-    }}>
-      {moveLabel} MOVE &nbsp; {dashLabel} DASH &nbsp; ESC PAUSE
     </div>
   );
 }

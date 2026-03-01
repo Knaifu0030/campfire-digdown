@@ -2,21 +2,26 @@ export const LANE_COUNT = 7;
 export const LANE_SPACING = 1.3;
 export const BLOCK_SIZE = 1.1;
 export const ROW_SPACING = 1.1;
-export const BASE_SPEED = 3.0;
-export const MAX_SPEED = 10.0;
-export const SPEED_INCREASE_RATE = 0.5;
-export const DASH_SPEED_MULT = 3.5;
-export const DASH_DURATION = 0.25;
-export const DASH_COOLDOWN = 0.8;
+export const BASE_SPEED = 2.8;
+export const MAX_SPEED = 9.5;
+export const SPEED_INCREASE_RATE = 0.4;
+export const DASH_SPEED_MULT = 3.2;
+export const DASH_DURATION = 0.3;
+export const DASH_COOLDOWN = 0.7;
 export const PLAYER_SIZE = 0.65;
-export const GENERATE_AHEAD = 35;
+export const GENERATE_AHEAD = 40;
 export const REMOVE_BEHIND = 15;
 export const INITIAL_EMPTY_ROWS = 6;
-export const CAMERA_OFFSET_Y = 3;
+export const CAMERA_OFFSET_Y = 3.5;
 export const CAMERA_OFFSET_Z = 14;
-export const CAMERA_LOOK_AHEAD = 5;
-export const CAMERA_SMOOTH = 0.06;
+export const CAMERA_LOOK_AHEAD = 5.5;
+export const CAMERA_SMOOTH = 0.09;
 export const SHAFT_HALF_WIDTH = ((LANE_COUNT - 1) / 2) * LANE_SPACING + LANE_SPACING * 0.7;
+
+export const SPRING_STIFFNESS = 320;
+export const SPRING_DAMPING = 22;
+export const SPRING_SNAP_THRESHOLD = 0.01;
+export const SPRING_SNAP_VELOCITY = 0.1;
 
 export enum BlockType {
   EMPTY = 0,

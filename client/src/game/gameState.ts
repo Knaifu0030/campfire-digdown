@@ -73,17 +73,19 @@ export interface ParticleData {
   vy: number;
   vz: number;
   life: number;
+  maxLife: number;
   color: [number, number, number];
   size: number;
 }
 
 export const particles: ParticleData[] = [];
 
-export function addParticles(newParticles: ParticleData[]) {
-  if (particles.length + newParticles.length > 600) {
-    particles.splice(0, newParticles.length);
+export function addParticles(newParticles: Omit<ParticleData, 'maxLife'>[]) {
+  const withMaxLife = newParticles.map(p => ({ ...p, maxLife: p.life }));
+  if (particles.length + withMaxLife.length > 800) {
+    particles.splice(0, withMaxLife.length);
   }
-  particles.push(...newParticles);
+  particles.push(...withMaxLife);
 }
 
 export let cameraShakeIntensity = 0;
@@ -93,7 +95,8 @@ export function triggerCameraShake(intensity: number) {
 }
 
 export function updateCameraShake(delta: number) {
-  cameraShakeIntensity = Math.max(0, cameraShakeIntensity - delta * 4);
+  cameraShakeIntensity *= Math.max(0, 1 - delta * 6);
+  if (cameraShakeIntensity < 0.01) cameraShakeIntensity = 0;
 }
 
 export const eventState = {

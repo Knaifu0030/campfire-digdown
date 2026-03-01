@@ -14,25 +14,25 @@
 ## Architecture
 
 ### Game Files (`client/src/game/`)
-- `constants.ts` - Game constants, types, layer color configs, helper functions
-- `gameState.ts` - Shared mutable game state (block grid, player state, particles, camera shake, events) - NOT React state, used for per-frame game loop data
-- `useGameStore.ts` - Zustand store for UI-reactive state (phase, depth, gems, powerups, events)
-- `worldGen.ts` - Procedural row generation with difficulty scaling
-- `Player.tsx` - Player component with movement, collision, squash/stretch effects
+- `constants.ts` - Game constants, types, layer color configs, helper functions. Includes spring physics constants (SPRING_STIFFNESS=320, SPRING_DAMPING=22)
+- `gameState.ts` - Shared mutable game state (block grid, player state, particles with maxLife for fade-out, camera shake with exponential decay, events)
+- `useGameStore.ts` - Zustand store for UI-reactive state (phase, depth, gems, powerups, events, menuTransition)
+- `worldGen.ts` - Procedural row generation with depth-based difficulty scaling using depthFactor (0-1 over 800 rows)
+- `Player.tsx` - Player component with spring-based lane movement, dash trail particles, death slow-mo sequence, gem sparkle effects, shovel tilt on lane change
 - `World.tsx` - World rendering with InstancedMesh, chunk generation/cleanup, event system, wall rendering
-- `FollowCamera.tsx` - Smooth follow camera with shake
-- `Particles.tsx` - InstancedMesh particle system for block breaking
-- `Lighting.tsx` - Dynamic depth-based lighting, fog, and background color
+- `FollowCamera.tsx` - Smooth follow camera with speed-based dynamic look-ahead and offset, exponential camera shake
+- `Particles.tsx` - InstancedMesh particle system (max 600) with maxLife-based fade-out and brightness scaling
+- `Lighting.tsx` - Dynamic depth-based lighting with smoothed transitions, player glow light (dash turns it blue), fog/background lerping
 - `GameScene.tsx` - Main 3D scene composition with post-processing (Bloom, Vignette)
-- `GameHUD.tsx` - In-game HUD overlay (depth, gems, powerups, mute toggle)
-- `MenuScreen.tsx` - Title/start screen
-- `GameOverScreen.tsx` - Game over screen with stats
+- `GameHUD.tsx` - In-game HUD overlay (depth counter, gems, powerups with glow, dash cooldown bar, event banners with color-coded slide-in animation)
+- `MenuScreen.tsx` - Title/start screen with transition animation (logo slides up, fades)
+- `MenuScene3D.tsx` - 3D menu scene with shovel idle animation and dig-down transition
+- `GameOverScreen.tsx` - Game over screen with red flash, phased fade-in, audio fade-out, stats display
 - `PauseMenu.tsx` - Pause menu with resume, exit, volume controls, and key rebinding
 - `useControlsStore.ts` - Zustand store for customizable key bindings
 
 ### Existing Files
 - `client/src/lib/stores/useAudio.tsx` - Audio management (background, hit, success sounds)
-- `client/src/lib/stores/useGame.tsx` - Original game store (not used by DIG DOWN)
 - `client/src/App.tsx` - Root component wiring Canvas, KeyboardControls, and UI screens
 
 ### Server (minimal)
@@ -49,7 +49,7 @@
 ### Controls (Remappable via Pause > Options)
 - A / Left Arrow: Move left one lane (default)
 - D / Right Arrow: Move right one lane (default)
-- Space: Dash downward (3.5x speed, 0.8s cooldown) (default)
+- Space: Dash downward (3.2x speed, 0.7s cooldown) (default)
 - Escape: Toggle pause menu
 
 ### Depth Layers
@@ -61,7 +61,7 @@
 ### Block Types
 - SOFT: Breakable on contact, brown/grey/red/blue based on depth
 - HARD: Game over on contact (unless shielded), darker appearance
-- GEM: Collectible, yellow octahedrons
+- GEM: Collectible, yellow octahedrons with sparkle particles
 - POWERUP_SHIELD/MAGNET/SPEED: Temporary abilities
 
 ### Powerups
@@ -73,9 +73,21 @@
 - Gem Rush: Extra gems spawn
 - Speed Tunnel: Increased fall speed
 - Low Gravity: Reduced fall speed
+- Treasure Pocket: Extra gems and powerups, fewer hard blocks
+- Rock Rain: More hard blocks
+
+### Mechanics
+- Spring-based lane movement (stiffness=320, damping=22) with snap thresholds
+- Gap speed boost: accumulates when passing through empty rows (+0.1 per gap, max 0.5, decays at 1.8/s)
+- Death sequence: 0.6s slow-mo with shake effect and particle burst before game over
+- Dash trail: blue particles emitted every 0.03s during dash
+- Camera: speed-based dynamic look-ahead and Y offset for anticipation feel
+- Particles: maxLife-based fade-out with brightness scaling, capacity 800 (rendered up to 600)
 
 ## Performance Notes
 - Blocks rendered via InstancedMesh (max 500 per type)
-- Particles via InstancedMesh (max 500)
-- Chunks generated ahead (35 rows) and cleaned up behind (15 rows)
+- Particles via InstancedMesh (max 600)
+- Chunks generated ahead (40 rows) and cleaned up behind (15 rows)
 - Game state separated: Zustand for UI, module-level for per-frame data
+- Lighting transitions smoothed with lerp to avoid popping
+- Camera shake uses exponential decay for natural feel
