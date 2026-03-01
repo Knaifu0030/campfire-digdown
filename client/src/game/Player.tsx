@@ -241,6 +241,16 @@ export default function Player() {
       }
     }
 
+    for (let r = currentRow - 1; r <= currentRow + 1; r++) {
+      const gemBlock = getBlock(playerState.lane, r);
+      if (gemBlock && !gemBlock.broken && gemBlock.type === BlockType.GEM) {
+        gemBlock.broken = true;
+        useGameStore.setState((s) => ({ gems: s.gems + 1 }));
+        spawnBlockParticles(playerState.lane, r, [1.0, 0.85, 0.1]);
+        useAudio.getState().playSuccess();
+      }
+    }
+
     if (store.magnetActive) {
       const magnetRange = 4;
       for (let r = currentRow - 2; r <= currentRow + magnetRange; r++) {
@@ -292,7 +302,7 @@ export default function Player() {
       <group ref={shovelRef}>
         <primitive
           object={shovelModel}
-          scale={[1.0, 1.0, 1.0]}
+          scale={[2.0, 2.0, 2.0]}
           rotation={[0, Math.PI, 0]}
         />
       </group>
