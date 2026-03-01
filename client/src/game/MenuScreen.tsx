@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from './useGameStore';
 import { resetGameState } from './gameState';
 import { useAudio } from '../lib/stores/useAudio';
 import { useControlsStore, getKeyLabel } from './useControlsStore';
+import { useGamepadButton } from './useGamepadButton';
 
 const FONT = "'Pirata One', 'Inter', sans-serif";
 
@@ -18,7 +19,7 @@ export default function MenuScreen() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     if (startedRef.current) return;
     startedRef.current = true;
     resetGameState();
@@ -32,7 +33,9 @@ export default function MenuScreen() {
     }
 
     setMenuTransition(1);
-  };
+  }, [setMenuTransition]);
+
+  useGamepadButton(0, handleStart, visible);
 
   useEffect(() => {
     let ready = false;
@@ -52,7 +55,7 @@ export default function MenuScreen() {
       clearTimeout(readyTimer);
       window.removeEventListener('keydown', onKey);
     };
-  }, []);
+  }, [handleStart]);
 
   const logoOffset = menuTransition > 0 ? -120 : 0;
   const bottomOffset = menuTransition > 0 ? 100 : 0;

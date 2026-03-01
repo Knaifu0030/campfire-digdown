@@ -72,6 +72,7 @@ function App() {
             useGameStore.getState().togglePause();
           }
           prevStart = startBtn;
+          break;
         }
       }
       raf = requestAnimationFrame(pollGamepadPause);

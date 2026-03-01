@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGameStore } from './useGameStore';
 import { useAudio } from '../lib/stores/useAudio';
 import { resetGameState } from './gameState';
@@ -6,6 +6,7 @@ import {
   useControlsStore,
   getKeyLabel,
 } from './useControlsStore';
+import { useGamepadButton } from './useGamepadButton';
 
 const FONT = "'Pirata One', 'Inter', sans-serif";
 
@@ -20,9 +21,11 @@ export default function PauseMenu() {
   const updateBinding = useControlsStore((s) => s.updateBinding);
   const resetDefaults = useControlsStore((s) => s.resetDefaults);
 
-  const handleResume = () => {
+  const handleResume = useCallback(() => {
     setPaused(false);
-  };
+  }, [setPaused]);
+
+  useGamepadButton(1, handleResume, !rebindingAction);
 
   const handleExit = () => {
     const audio = useAudio.getState();

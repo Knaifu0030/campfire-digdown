@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from './useGameStore';
 import { resetGameState } from './gameState';
 import { useAudio } from '../lib/stores/useAudio';
+import { useGamepadButton } from './useGamepadButton';
 
 const FONT = "'Pirata One', 'Inter', sans-serif";
 
@@ -41,12 +42,14 @@ export default function GameOverScreen() {
     };
   }, []);
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     if (restartedRef.current) return;
     restartedRef.current = true;
     resetGameState();
     restart();
-  };
+  }, [restart]);
+
+  useGamepadButton(0, handleRestart, phase === 'ready');
 
   useEffect(() => {
     let ready = false;
