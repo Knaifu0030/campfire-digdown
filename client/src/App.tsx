@@ -1,73 +1,76 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
-// import { useAudio } from "./lib/stores/useAudio";
 import "@fontsource/inter";
+import { useAudio } from "./lib/stores/useAudio";
+import { useGameStore } from "./game/useGameStore";
+import { Controls } from "./game/Player";
+import GameScene from "./game/GameScene";
+import GameHUD from "./game/GameHUD";
+import MenuScreen from "./game/MenuScreen";
+import GameOverScreen from "./game/GameOverScreen";
 
-// Import our game components
+const keyMap = [
+  { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
+  { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
+  { name: Controls.dash, keys: ["Space"] },
+];
 
-// Define control keys for the game
-// const controls = [
-//   { name: "forward", keys: ["KeyW", "ArrowUp"] },
-//   { name: "backward", keys: ["KeyS", "ArrowDown"] },
-//   { name: "leftward", keys: ["KeyA", "ArrowLeft"] },
-//   { name: "rightward", keys: ["KeyD", "ArrowRight"] },
-//   { name: "punch", keys: ["KeyJ"] },
-//   { name: "kick", keys: ["KeyK"] },
-//   { name: "block", keys: ["KeyL"] },
-//   { name: "special", keys: ["Space"] },
-// ];
-
-// Main App component
 function App() {
-  //const { gamePhase } = useFighting();
-  const [showCanvas, setShowCanvas] = useState(false);
+  const phase = useGameStore((s) => s.phase);
 
-  // Show the canvas once everything is loaded
   useEffect(() => {
-    setShowCanvas(true);
+    const bg = new Audio("/sounds/background.mp3");
+    bg.loop = true;
+    bg.volume = 0.25;
+    const hit = new Audio("/sounds/hit.mp3");
+    const success = new Audio("/sounds/success.mp3");
+
+    useAudio.getState().setBackgroundMusic(bg);
+    useAudio.getState().setHitSound(hit);
+    useAudio.getState().setSuccessSound(success);
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}/>
-    // {showCanvas && (
-    //   <KeyboardControls map={controls}>
-    //     {gamePhase === 'menu' && <Menu />}
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        position: "relative",
+        overflow: "hidden",
+        background: "#0a0806",
+      }}
+    >
+      <KeyboardControls map={keyMap}>
+        <Canvas
+          shadows
+          camera={{
+            position: [0, 0, 14],
+            fov: 50,
+            near: 0.1,
+            far: 100,
+          }}
+          gl={{
+            antialias: true,
+            powerPreference: "default",
+          }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <color attach="background" args={["#0a0806"]} />
+          <GameScene />
+        </Canvas>
 
-    //     {gamePhase === 'character_selection' && <CharacterSelection />}
-
-    //     {(gamePhase === 'fighting' || gamePhase === 'round_end' || gamePhase === 'match_end') && (
-    //       <>
-    //         <Canvas
-    //           shadows
-    //           camera={{
-    //             position: [0, 2, 8],
-    //             fov: 45,
-    //             near: 0.1,
-    //             far: 1000
-    //           }}
-    //           gl={{
-    //             antialias: true,
-    //             powerPreference: "default"
-    //           }}
-    //         >
-    //           <color attach="background" args={["#111111"]} />
-
-    //           {/* Lighting */}
-    //           <Lights />
-
-    //           <Suspense fallback={null}>
-    //           </Suspense>
-    //         </Canvas>
-    //         <GameUI />
-    //       </>
-    //     )}
-
-    //     <ShortcutManager />
-    //     <SoundManager />
-    //   </KeyboardControls>
-    // )}
-    //</div>
+        {phase === "menu" && <MenuScreen />}
+        {phase === "playing" && <GameHUD />}
+        {phase === "gameover" && <GameOverScreen />}
+      </KeyboardControls>
+    </div>
   );
 }
 
