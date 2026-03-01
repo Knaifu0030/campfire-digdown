@@ -69,6 +69,7 @@ function spawnBlockParticles(
 
 export default function Player() {
   const groupRef = useRef<THREE.Group>(null);
+  const shovelRef = useRef<THREE.Group>(null);
   const [, getControls] = useKeyboardControls<Controls>();
   const prevLeft = useRef(false);
   const prevRight = useRef(false);
@@ -76,6 +77,7 @@ export default function Player() {
   const scaleRef = useRef(new THREE.Vector3(1, 1, 1));
   const targetScale = useRef(new THREE.Vector3(1, 1, 1));
   const squashTimer = useRef(0);
+  const digTime = useRef(0);
 
   const { scene: shovelScene } = useGLTF('/models/shovel.glb');
   const shovelModel = useMemo(() => {
@@ -268,9 +270,18 @@ export default function Player() {
 
     scaleRef.current.lerp(targetScale.current, Math.min(1, 12 * dt));
 
+    digTime.current += dt * (playerState.dashActive ? 18 : 10);
+
     if (groupRef.current) {
       groupRef.current.position.set(playerState.visualX, playerState.y, 0);
       groupRef.current.scale.copy(scaleRef.current);
+    }
+
+    if (shovelRef.current) {
+      const digSwing = Math.sin(digTime.current) * 0.25;
+      const digBob = Math.sin(digTime.current * 2) * 0.04;
+      shovelRef.current.rotation.set(0, 0, digSwing);
+      shovelRef.current.position.y = digBob;
     }
   });
 
@@ -278,12 +289,13 @@ export default function Player() {
 
   return (
     <group ref={groupRef}>
-      <primitive
-        object={shovelModel}
-        scale={[2.5, 2.5, 2.5]}
-        rotation={[Math.PI, 0, 0]}
-        position={[0, PLAYER_SIZE * 0.3, 0]}
-      />
+      <group ref={shovelRef}>
+        <primitive
+          object={shovelModel}
+          scale={[1.0, 1.0, 1.0]}
+          rotation={[0, Math.PI, 0]}
+        />
+      </group>
       {shieldActive && (
         <mesh material={shieldMat}>
           <sphereGeometry args={[PLAYER_SIZE * 0.85, 16, 16]} />
